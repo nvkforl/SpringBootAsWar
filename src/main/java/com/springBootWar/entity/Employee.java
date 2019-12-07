@@ -1,5 +1,7 @@
 package com.springBootWar.entity;
 
+import java.math.BigDecimal;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -12,37 +14,42 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 import javax.persistence.NamedStoredProcedureQueries;
 
 
 @NamedStoredProcedureQueries({
-		@NamedStoredProcedureQuery(name = "getEmployeeThroughStoredProcedure", procedureName = "EMPLOYEESPROCEDURE", parameters = {
+		@NamedStoredProcedureQuery(name = "getEmployeeThroughStoredProcedure", procedureName = "EMPLOYEESPROCEDURE", 
+				resultClasses = Employee.class,
+				parameters = {
 				@StoredProcedureParameter(name = "DEPT_ID", mode = ParameterMode.IN, type = Integer.class),
-				@StoredProcedureParameter(name = "A_SELECT_REC_CUR", mode = ParameterMode.REF_CURSOR, type = void.class),
-				@StoredProcedureParameter(name = "A_ROW_COUNT", mode = ParameterMode.OUT, type = Integer.class), }) })
+				@StoredProcedureParameter(name = "A_SELECT_REC_CUR", mode = ParameterMode.REF_CURSOR, type = Employee.class),
+				@StoredProcedureParameter(name = "A_ROW_COUNT", mode = ParameterMode.OUT, type = Integer.class), }) 
+		})
 @Getter
 @Setter
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString
 public class Employee {
 
 	@Id
 	//@Column(name = "EMP_ID")
-	private Integer emp_id;
+	private BigDecimal  emp_id;
 
 	//@Column(name = "EMP_NAME")
 	private String emp_name;
 
 	//@Column(name = "EMP_DEPT_ID")
-	private Integer emp_dept_id;
+	private BigDecimal  emp_dept_id;
 
 	//@Column(name = "EMP_LOC")
 	private String emp_loc;
 
 	//@Column(name = "EMP_SAL")
-	private Integer emp_sal;
+	private BigDecimal  emp_sal;
 
 	
 	
