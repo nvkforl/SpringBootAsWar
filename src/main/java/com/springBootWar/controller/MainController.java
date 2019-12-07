@@ -1,34 +1,59 @@
 package com.springBootWar.controller;
 
-import javax.persistence.StoredProcedureQuery;
+import java.util.concurrent.CompletableFuture;
+
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.springBootWar.repository.EmployeeRepository;
+import com.springBootWar.entity.Employee;
+import com.springBootWar.model.ProcedureResult;
+import com.springBootWar.repository.ProcedureRepository;
+import com.springBootWar.request.Request;
 
 @RestController
 public class MainController {
 
 	@Autowired
-	private EmployeeRepository employeeRepository;
+    private ProcedureRepository procedureRepository;
 
-	@GetMapping("/get")
-	public StoredProcedureQuery getAllEmployees() {
+	@PostMapping(value = "/hi")
+	public ResponseEntity<?> demo(@RequestBody Request request) {
 
-		StoredProcedureQuery employeeString = employeeRepository.getAllEmployeesString();
+		if (request.getReqType().trim().equalsIgnoreCase("PING")) {
+			return new ResponseEntity<>(HttpStatus.OK);
+		}
 
-		System.out.println(employeeString.toString());
+		if (request.getReqType().trim().equalsIgnoreCase("input")) {
 
-		return employeeString;
+			CompletableFuture.runAsync(() -> {
+				callStoredProcedure();
+			});
 
+			return new ResponseEntity<>(HttpStatus.OK);
+		}
+
+		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
-	@GetMapping("/hi")
-	public String demo() {
-		return "hello";
+	private void callStoredProcedure() {
+		Employee emp = new Employee();
+        ProcedureResult procedureResult = null;
+        try {
+        	procedureResult = procedureRepository.callEmployeeThroughProcedure(1);
+        }catch (Exception e) {
+			e.printStackTrace();
+		}
+        //emp = procedureResult.getEmployee();
+        int rowCount = procedureResult.getRow_count();
+
+        System.out.println("Employee : " + emp);
+        System.out.println("rowCount : " + rowCount);
 	}
 
 }

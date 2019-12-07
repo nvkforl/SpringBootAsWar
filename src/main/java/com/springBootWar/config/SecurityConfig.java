@@ -31,22 +31,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		return bCryptPasswordEncoder;
 	}
 
-	/*
-	 * @Autowired public void configureGlobal(AuthenticationManagerBuilder auth)
-	 * throws Exception {
-	 * auth.inMemoryAuthentication().withUser("john123").password("password").roles(
-	 * "USER"); }
-	 */
-
 	@Autowired
 	public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
 
 		InMemoryUserDetailsManagerConfigurer<AuthenticationManagerBuilder> //
 		mngConfig = auth.inMemoryAuthentication();
 
-		// If Spring BOOT < 2.x (Spring Security 4.x)):
-		// Spring auto add ROLE_
-		mngConfig.withUser("john123").password("password").roles("USER");
+		mngConfig.withUser("nitish").password("krishna").roles("USER");
 	}
 
 }
