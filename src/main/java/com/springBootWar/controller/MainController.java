@@ -1,5 +1,6 @@
 package com.springBootWar.controller;
 
+import java.io.UnsupportedEncodingException;
 import java.util.concurrent.CompletableFuture;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +44,20 @@ public class MainController {
 
 			return new ResponseEntity<>(HttpStatus.OK);
 		}
+		
+		if (request.getReqType().trim().equalsIgnoreCase("dispose")) {
+
+			CompletableFuture.runAsync(() -> {
+				try {
+					downloadfileWithKey();
+				} catch (UnsupportedEncodingException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			});
+
+			return new ResponseEntity<>(HttpStatus.OK);
+		}
 
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
@@ -58,6 +73,11 @@ public class MainController {
 
 		fileUploadService.uploadFile(filePath);
 		System.out.println("Employee : " + emp);
+	}
+	
+	private void downloadfileWithKey() throws UnsupportedEncodingException {
+		procedureRepository.downloadFileWithKey("case_SingleValueFile.txt");
+		
 	}
 
 }

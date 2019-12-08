@@ -1,18 +1,25 @@
 package com.springBootWar.repository;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.ByteArrayHttpMessageConverter;
+import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.stereotype.Repository;
+import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.springBootWar.entity.Employee;
-import com.springBootWar.model.ProcedureResult;
 
 import javax.persistence.EntityManager;
 import javax.persistence.ParameterMode;
 import javax.persistence.StoredProcedureQuery;
 
 import java.io.File;
+import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
@@ -24,7 +31,6 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Repository
 public class ProcedureRepository {
@@ -32,6 +38,7 @@ public class ProcedureRepository {
 	@Autowired
 	EntityManager entityManager;
 
+	@SuppressWarnings({ "unchecked", "rawtypes", "unused" })
 	public String callEmployeeThroughProcedure(int dept_id) {
 
 		StoredProcedureQuery proc = entityManager.createStoredProcedureQuery("EMPLOYEESPROCEDURE");
@@ -88,23 +95,50 @@ public class ProcedureRepository {
 	            mapper.writeValue(new File(filePath), jsonMap);
 	        } catch (Exception e) {
 	            e.printStackTrace();
+	            return null;
 	        }
-
-		 
-		 
 		 
 		return filePath;
 	}
 
-	public ProcedureResult callEmployeeThroughNamedStoredProcedureQuery(int dept_id) {
+	public void downloadFileWithKey(String fileKeyName) throws UnsupportedEncodingException {
+		List<HttpMessageConverter<?>> messageConverters = new ArrayList<HttpMessageConverter<?>>();
+		messageConverters.add(new ByteArrayHttpMessageConverter());
+		
+		RestTemplate restTemplate = new RestTemplate(messageConverters);
 
-		StoredProcedureQuery proc = entityManager
-				.createNamedStoredProcedureQuery("addEmployeeThroughNamedStoredProcedureQuery");
-		proc.setParameter("DEPT_ID", dept_id);
+		HttpHeaders headers = new HttpHeaders();
+		HttpEntity<String> entity = new HttpEntity<String>(headers);
 
-		proc.execute();
+		ResponseEntity<byte[]> response = null;
+		try {
+		response = restTemplate.exchange(
+				"http://localhost:8082/downloadFile/"+fileKeyName,
+				HttpMethod.GET, entity, byte[].class);
+		}catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		byte[] bytes = response.getBody();
+		String str = new String(bytes, "UTF-8");
+		
+		System.out.println(str);
+		
+		String lines[] = str.split("\\r?\\n");
+		
+		// step two : convert String array to list of String
+		List<String> fixedLenghtList = Arrays.asList(lines);
 
-		return ProcedureResult.builder().employee((Employee) proc.getOutputParameterValue("A_SELECT_REC_CUR"))
-				.row_count((Integer) proc.getOutputParameterValue("A_ROW_COUNT")).build();
+		// step three : copy fixed list to an ArrayList
+		ArrayList<String> listOfString = new ArrayList<String>(fixedLenghtList);
+		
+		listOfString.removeIf(s -> s.equalsIgnoreCase("#_#_This new Line can be ignored_#__#"));
+		listOfString.removeIf(s -> s.equalsIgnoreCase("#_#Table_Name#_#"));
+		listOfString.removeIf(s -> s.equalsIgnoreCase("#_#_This new Line can be can be started from here_#__#"));
+		listOfString.removeIf(s -> s.equalsIgnoreCase("#_#_This new Line can be can be END from here_#__#"));
+		
+		System.out.println(listOfString);
 	}
+
+	
 }
