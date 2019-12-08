@@ -32,7 +32,7 @@ public class ProcedureRepository {
 	@Autowired
 	EntityManager entityManager;
 
-	public ProcedureResult callEmployeeThroughProcedure(int dept_id) {
+	public String callEmployeeThroughProcedure(int dept_id) {
 
 		StoredProcedureQuery proc = entityManager.createStoredProcedureQuery("EMPLOYEESPROCEDURE");
 		proc.registerStoredProcedureParameter(1, Integer.class, ParameterMode.IN);
@@ -82,15 +82,18 @@ public class ProcedureRepository {
 		System.out.println("jsonMap= "+jsonMap);
 		
 		ObjectMapper mapper = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT);;
+		String filePath = "D:\\InfyProject\\readFile\\"+fileName;
 		
 		 try {
-	            mapper.writeValue(new File("D:\\InfyProject\\writingFile\\"+fileName), jsonMap);
+	            mapper.writeValue(new File(filePath), jsonMap);
 	        } catch (Exception e) {
 	            e.printStackTrace();
 	        }
 
-		return ProcedureResult.builder().employee((Employee) proc.getOutputParameterValue(2))
-				.row_count((Integer) proc.getOutputParameterValue(3)).build();
+		 
+		 
+		 
+		return filePath;
 	}
 
 	public ProcedureResult callEmployeeThroughNamedStoredProcedureQuery(int dept_id) {
