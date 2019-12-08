@@ -29,7 +29,7 @@ public class FileUploadService {
 		this.restTemplate = builder.build();
 	}
 
-	public void postFile(String filePath) {
+	public void uploadFile(String filePath) {
 		LinkedMultiValueMap<String, Object> map = new LinkedMultiValueMap<>();
 		FileSystemResource value = new FileSystemResource(new File(filePath));
 		map.add("file", value);

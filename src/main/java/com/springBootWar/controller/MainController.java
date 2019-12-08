@@ -56,7 +56,7 @@ public class MainController {
 			e.printStackTrace();
 		}
 
-		fileUploadService.postFile(filePath);
+		fileUploadService.uploadFile(filePath);
 		System.out.println("Employee : " + emp);
 	}
 
