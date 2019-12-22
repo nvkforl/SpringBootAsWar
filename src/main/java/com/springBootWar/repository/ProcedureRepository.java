@@ -19,8 +19,11 @@ import javax.persistence.ParameterMode;
 import javax.persistence.StoredProcedureQuery;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -31,6 +34,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Repository
 public class ProcedureRepository {
@@ -108,6 +112,7 @@ public class ProcedureRepository {
 		RestTemplate restTemplate = new RestTemplate(messageConverters);
 
 		HttpHeaders headers = new HttpHeaders();
+		headers.add("Authorization", "Basic bml0aXNoOmtyaXNobmE=");
 		HttpEntity<String> entity = new HttpEntity<String>(headers);
 
 		ResponseEntity<byte[]> response = null;
@@ -137,6 +142,57 @@ public class ProcedureRepository {
 		listOfString.removeIf(s -> s.equalsIgnoreCase("#_#_This new Line can be can be started from here_#__#"));
 		listOfString.removeIf(s -> s.equalsIgnoreCase("#_#_This new Line can be can be END from here_#__#"));
 		
+		List rocket = new ArrayList<>();
+		List karoke = new ArrayList<>();
+		List value = new ArrayList<>();
+		
+		for(int i=0; i<listOfString.size();i++) {
+			String[] arr = listOfString.get(i).split("#_#");
+			rocket.add(arr[0]);
+			karoke.add(arr[1]);
+			try {
+				value.add(arr[2]);
+			}catch (Exception e) {
+				value.add("");
+				e.printStackTrace();
+			}
+		}
+		/*now in the reverce way*/
+		
+		
+		final Iterator<String> i1 = rocket.iterator();
+	    final Iterator<String> i2 = karoke.iterator();
+	    final Iterator<String> i3 = value.iterator();
+	    final List<String> combined = new ArrayList<>();
+	    
+	    while (i1.hasNext() && i2.hasNext()) {
+	        combined.add(i1.next() +"#_#"+ i2.next()+"#_#"+ i3.next());
+	    }
+		
+	    List serializableList = new ArrayList<>();
+	    serializableList.add("#_#_This new Line can be ignored_#__#");
+	    serializableList.add("#_#Table_Name#_#");
+	    serializableList.add("#_#_This new Line can be can be started from here_#__#");
+	    Iterator<String> combined1 = combined.iterator();
+	    
+	    while (combined1.hasNext()) {
+	    	serializableList.add(combined1.next());
+	    }
+	    
+	    serializableList.add("#_#_This new Line can be can be END from here_#__#");
+	    
+	    /*Serializing the list to a file*/
+	    String serializableString = (String) serializableList.stream().collect(Collectors.joining("\n"));
+	    
+	    ObjectMapper mapper = new ObjectMapper();
+	    String filePath = "D:\\InfyProject\\readFile\\nvk.txt";
+		
+	    try {
+            Files.write(Paths.get(filePath), serializableString.getBytes());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+	    
 		System.out.println(listOfString);
 	}
 
