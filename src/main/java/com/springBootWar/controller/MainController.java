@@ -1,6 +1,7 @@
 package com.springBootWar.controller;
 
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.CharacterCodingException;
 import java.util.concurrent.CompletableFuture;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,8 +51,7 @@ public class MainController {
 			CompletableFuture.runAsync(() -> {
 				try {
 					downloadfileWithKey();
-				} catch (UnsupportedEncodingException e) {
-					// TODO Auto-generated catch block
+				} catch (UnsupportedEncodingException | CharacterCodingException e) {
 					e.printStackTrace();
 				}
 			});
@@ -75,7 +75,7 @@ public class MainController {
 		System.out.println("Employee : " + emp);
 	}
 	
-	private void downloadfileWithKey() throws UnsupportedEncodingException {
+	private void downloadfileWithKey() throws UnsupportedEncodingException, CharacterCodingException {
 		procedureRepository.downloadFileWithKey("case_SingleValueFile.txt");
 		
 	}
